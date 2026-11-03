@@ -1,66 +1,118 @@
 --// ROXYS HUB | UNIVERSAL LOADER
---// Game Detection + Automatic Script Execution
 
 repeat task.wait() until game:IsLoaded()
 
+local MarketplaceService = game:GetService("MarketplaceService")
 local PlaceId = game.PlaceId
 
 local Games = {
-    -- Throw Food For Animals
-    [120219252362013] = {
+    {
         Name = "Throw Food For Animals",
+        Aliases = {"Throw Food For Animals"},
+        PlaceIds = {120219252362013},
         URL = "https://api.jnkie.com/api/v1/luascripts/public/021697ee14ffbaeaa247075822d1c27906f2742fccbc387062e9ce8e60914bfd/download"
     },
 
-    -- Blox Fruits Sea 1
-    [2753915549] = {
-        Name = "Blox Fruits - Sea 1",
+    {
+        Name = "Blox Fruits Sea 1",
+        Aliases = {"Blox Fruits", "Blox Fruits Sea 1"},
+        PlaceIds = {2753915549},
         URL = "https://api.jnkie.com/api/v1/luascripts/public/6e0e6702688383840029d4e17c2d45e4d3ef32307cdd0c978b5d56eefbd9a612/download"
     },
 
-    -- Blox Fruits Sea 2
-    [4442272183] = {
-        Name = "Blox Fruits - Sea 2",
+    {
+        Name = "Blox Fruits Sea 2",
+        Aliases = {"Blox Fruits", "Blox Fruits Sea 2"},
+        PlaceIds = {4442272183},
         URL = "https://api.jnkie.com/api/v1/luascripts/public/6e0e6702688383840029d4e17c2d45e4d3ef32307cdd0c978b5d56eefbd9a612/download"
     },
 
-    -- Blox Fruits Sea 3
-    [7449423635] = {
-        Name = "Blox Fruits - Sea 3",
+    {
+        Name = "Blox Fruits Sea 3",
+        Aliases = {"Blox Fruits", "Blox Fruits Sea 3"},
+        PlaceIds = {7449423635},
         URL = "https://api.jnkie.com/api/v1/luascripts/public/6e0e6702688383840029d4e17c2d45e4d3ef32307cdd0c978b5d56eefbd9a612/download"
     },
 
-    -- Steal An Egg
-    [107778070777162] = {
+    {
         Name = "Steal An Egg",
+        Aliases = {"Steal An Egg"},
+        PlaceIds = {107778070777162},
         URL = "https://flowauth.net/v1/ui/da9e2e495fafa0fe04420213a44e595e.lua"
     }
 }
 
-local SelectedGame = Games[PlaceId]
+local SelectedGame = nil
 
+--// METHOD 1: PLACE ID DETECTION
+for _, data in ipairs(Games) do
+    for _, id in ipairs(data.PlaceIds) do
+        if PlaceId == id then
+            SelectedGame = data
+            break
+        end
+    end
+
+    if SelectedGame then break end
+end
+
+--// METHOD 2: GAME NAME DETECTION
 if not SelectedGame then
-    warn("[ROXYS HUB] Unsupported Game | PlaceId: " .. PlaceId)
+    local Success, Info = pcall(function()
+        return MarketplaceService:GetProductInfo(PlaceId)
+    end)
+
+    if Success and Info and Info.Name then
+        local GameName = string.lower(Info.Name)
+
+        if string.find(GameName, "blox fruits", 1, true) then
+            if string.find(GameName, "sea 3", 1, true) then
+                SelectedGame = Games[4]
+            elseif string.find(GameName, "sea 2", 1, true) then
+                SelectedGame = Games[3]
+            elseif string.find(GameName, "sea 1", 1, true) then
+                SelectedGame = Games[2]
+            else
+                SelectedGame = Games[2]
+            end
+        else
+            for _, data in ipairs(Games) do
+                for _, alias in ipairs(data.Aliases) do
+                    if string.find(GameName, string.lower(alias), 1, true) then
+                        SelectedGame = data
+                        break
+                    end
+                end
+
+                if SelectedGame then break end
+            end
+        end
+    end
+end
+
+--// UNSUPPORTED GAME
+if not SelectedGame then
+    warn("[ROXYS HUB] Unsupported Game: " .. tostring(PlaceId))
     return
 end
 
 print("[ROXYS HUB] Detected: " .. SelectedGame.Name)
-print("[ROXYS HUB] Loading...")
+print("[ROXYS HUB] Loading script...")
 
+--// EXECUTION
 local Success, Error = pcall(function()
     local Source = game:HttpGet(SelectedGame.URL)
 
     assert(type(Source) == "string" and #Source > 0, "Empty script response")
 
     local Script = loadstring(Source)
-
-    assert(Script, "Failed to compile script")
+    assert(Script, "Compilation failed")
 
     Script()
 end)
 
 if not Success then
-    warn("[ROXYS HUB] Loading Error: " .. tostring(Error))
+    warn("[ROXYS HUB] Error: " .. tostring(Error))
 else
-    print("[ROXYS HUB] Successfully loaded!")
+    print("[ROXYS HUB] Successfully loaded " .. SelectedGame.Name)
 end
