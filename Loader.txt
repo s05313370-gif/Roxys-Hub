@@ -1,20 +1,36 @@
 --// ROXYS HUB | UNIVERSAL LOADER
+--// Game Detection + Automatic Script Execution
 
 repeat task.wait() until game:IsLoaded()
 
 local PlaceId = game.PlaceId
 
 local Games = {
+    -- Throw Food For Animals
     [120219252362013] = {
         Name = "Throw Food For Animals",
         URL = "https://api.jnkie.com/api/v1/luascripts/public/021697ee14ffbaeaa247075822d1c27906f2742fccbc387062e9ce8e60914bfd/download"
     },
 
+    -- Blox Fruits Sea 1
     [2753915549] = {
-        Name = "Blox Fruits",
+        Name = "Blox Fruits - Sea 1",
         URL = "https://api.jnkie.com/api/v1/luascripts/public/6e0e6702688383840029d4e17c2d45e4d3ef32307cdd0c978b5d56eefbd9a612/download"
     },
 
+    -- Blox Fruits Sea 2
+    [4442272183] = {
+        Name = "Blox Fruits - Sea 2",
+        URL = "https://api.jnkie.com/api/v1/luascripts/public/6e0e6702688383840029d4e17c2d45e4d3ef32307cdd0c978b5d56eefbd9a612/download"
+    },
+
+    -- Blox Fruits Sea 3
+    [7449423635] = {
+        Name = "Blox Fruits - Sea 3",
+        URL = "https://api.jnkie.com/api/v1/luascripts/public/6e0e6702688383840029d4e17c2d45e4d3ef32307cdd0c978b5d56eefbd9a612/download"
+    },
+
+    -- Steal An Egg
     [107778070777162] = {
         Name = "Steal An Egg",
         URL = "https://flowauth.net/v1/ui/da9e2e495fafa0fe04420213a44e595e.lua"
@@ -24,25 +40,27 @@ local Games = {
 local SelectedGame = Games[PlaceId]
 
 if not SelectedGame then
-    warn("[ROXYS HUB] Unsupported Game! Place ID: " .. PlaceId)
+    warn("[ROXYS HUB] Unsupported Game | PlaceId: " .. PlaceId)
     return
 end
 
-print("[ROXYS HUB] Game Detected: " .. SelectedGame.Name)
-print("[ROXYS HUB] Loading script...")
+print("[ROXYS HUB] Detected: " .. SelectedGame.Name)
+print("[ROXYS HUB] Loading...")
 
 local Success, Error = pcall(function()
     local Source = game:HttpGet(SelectedGame.URL)
+
     assert(type(Source) == "string" and #Source > 0, "Empty script response")
 
     local Script = loadstring(Source)
-    assert(Script, "Script compilation failed")
+
+    assert(Script, "Failed to compile script")
 
     Script()
 end)
 
 if not Success then
-    warn("[ROXYS HUB] Error: " .. tostring(Error))
+    warn("[ROXYS HUB] Loading Error: " .. tostring(Error))
 else
-    print("[ROXYS HUB] Successfully loaded " .. SelectedGame.Name)
+    print("[ROXYS HUB] Successfully loaded!")
 end
