@@ -1,3 +1,4 @@
+
 --// ROXYS HUB | UNIVERSAL LOADER
 
 repeat task.wait() until game:IsLoaded()
@@ -39,6 +40,13 @@ local Games = {
         Aliases = {"Steal An Egg"},
         PlaceIds = {107778070777162},
         URL = "https://flowauth.net/v1/ui/da9e2e495fafa0fe04420213a44e595e.lua"
+    },
+
+    {
+        Name = "1 Assassin Leveling",
+        Aliases = {"1 Assassin Leveling", "Assassin Leveling"},
+        PlaceIds = {120731410233153},
+        URL = "https://api.jnkie.com/api/v1/luascripts/public/9d2c7d5a8202029b2e1bf891ee3f4bd47a4e7b2303350c69f8d2a2467ed26ee4/download"
     }
 }
 
